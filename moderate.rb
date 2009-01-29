@@ -1,6 +1,5 @@
-require File.join(File.dirname(__FILE__), *%w[.. config environment])
-# require 'rubygems'
-# require 'activeresource'
+require 'rubygems'
+require 'activeresource'
 
 class Moderate < ActiveResource::Base
   self.site = "http://api.socialmod.com"
