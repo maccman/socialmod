@@ -1,4 +1,25 @@
-# requires pyactiveresource and pyyaml
+
+"""
+Python client to SocialMod
+For more information, please see the API:
+http://socialmod.com/api
+
+Usage:
+  Moderate.set_api_key('your_api_key')
+  Moderate.find_moderated() #=> [item(1), item(1)]
+
+  m = Moderate()
+  m.src = 'http://image.gsfc.nasa.gov/image/image_launch_a5.jpg'
+  m.save()
+
+Dependencies:
+ - pyactiveresource
+ - pyyaml
+
+@author Alex MacCaw (info@socialmod.com)
+@version 0.1
+@license MIT
+"""
 
 from pyactiveresource.activeresource import ActiveResource
 
@@ -28,10 +49,3 @@ class Moderate(ActiveResource):
 Moderate.site     = 'http://api.socialmod.com'
 Moderate.singular = 'item'
 Moderate.plural   = 'items'
-
-# Moderate.set_api_key('your_api_key')
-# Moderate.find_moderated() #=> [item(1), item(1)]
-# 
-# m = Moderate()
-# m.src = 'http://image.gsfc.nasa.gov/image/image_launch_a5.jpg'
-# m.save()
