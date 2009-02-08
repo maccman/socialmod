@@ -64,7 +64,8 @@ class Moderate < ActiveResource::Base
   end
   
   def failed?
-    verdict == 'failed'
+    verdict == 'failed' ||
+      verdict == 'deferred'
   end
   
   def pending?
