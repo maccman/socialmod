@@ -1,6 +1,7 @@
 <?php
 
 /**
+ * PLEASE DONT'T USE this yet - it's untested.
  *
  * PHP client to SocialMod
  * For more information, please see the API:
