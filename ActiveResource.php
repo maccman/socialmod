@@ -48,67 +48,37 @@ class ActiveResource {
 	/**
 	 * The REST site address, e.g., http://user:pass@domain:port/
 	 */
-	var $site = false;
+	public static $site = false;
 
 	/**
 	 * The remote collection, e.g., person or things
 	 */
-	var $element_name = false;
+	public static $element_name = false;
+	
+	// Custom headers
+	public static $headers = array();
 
 	/**
 	 * The data of the current object, accessed via the anonymous get/set methods.
 	 */
 	var $_data = array ();
-
-	/**
-	 * An error message if an error occurred.
-	 */
-	var $error = false;
-
-	/**
-	 * The error number if an error occurred.
-	 */
-	var $errno = false;
-
-	/**
-	 * The request that was sent to the server.
-	 */
-	var $request_body = '';
-
-	/**
-	 * The complete URL that the request was sent to.
-	 */
-	var $request_uri = '';
-
-	/**
-	 * The request method sent to the server.
-	 */
-	var $request_method = '';
-
-	/**
-	 * The response code returned from the server.
-	 */
-	var $response_code = false;
-
-	/**
-	 * The raw response headers sent from the server.
-	 */
-	var $response_headers = '';
-
-	/**
-	 * The response body sent from the server.
-	 */
-	var $response_body = '';
-	
-  // Custom headers
-	var $headers = array();
 	
 	/**
 	 * Constructor method.
 	 */
 	function __construct ($data = array ()) {
 		$this->_data = $data;
-		$this->element_name = strtolower (get_class ($this)) . 's';
+		$cls = get_class($this);
+    // This is horrible hack - I can't believe
+    // php doesn't support this:
+    // http://bit.ly/vmLd2
+    $vars = get_class_vars($cls);
+		if($vars['element_name']){
+		  $this->element_name = $vars['element_name'];
+		} else {
+  		$this->element_name = strtolower($cls) . 's';
+		}
+		$this->site = $vars['site'];
 	}
 
 	/**
@@ -119,9 +89,14 @@ class ActiveResource {
 	 */
 	function save () {
 		if (isset ($this->_data['id'])) {
-			return $this->_send_and_receive ($this->site . $this->element_name . '/' . $this->_data['id'] . '.xml', 'PUT', $this->_data); // update
+			$this->_data = $this->_send_and_receive ($this->site . $this->element_name . '/' . $this->_data['id'] . '.xml', 'PUT', $this->element_name, $this->_data); // update
+		} else {
+  		$this->_data = $this->_send_and_receive ($this->site . $this->element_name . '.xml', 'POST', $this->element_name, $this->_data); // create
 		}
-		return $this->_send_and_receive ($this->site . $this->element_name . '.xml', 'POST', $this->_data); // create
+    if($this->_data['errors']){
+      return false;
+    }
+		return true;
 	}
 
 	/**
@@ -139,14 +114,20 @@ class ActiveResource {
 	 * GET /collection/id.xml
 	 * GET /collection.xml
 	 */
-	function find ($id = false) {
-		if (! $id) {
-			$id = $this->_data['id'];
+	static function find ($class, $id = false) {
+	  // Nasty PHP workaround: http://bit.ly/jc1ks
+	  $vars = get_class_vars($class);
+		if (!$id || $id == 'all') {
+		  $res = array();
+		  $data = self::_send_and_receive ($vars['site'] . $vars['element_name'] . '.xml', 'GET', $vars['element_name']);
+		  foreach($data as $d){
+		    $res[] = new $class($d);
+		  }
+		} else {
+		  $data = self::_send_and_receive ($vars['site'] . $vars['element_name'] . '/' . $id . '.xml', 'GET', $vars['element_name']);
+		  $res = new $class($data);
 		}
-		if ($id == 'all') {
-			return $this->_send_and_receive ($this->site . $this->element_name . '.xml', 'GET');
-		}
-		return $this->_send_and_receive ($this->site . $this->element_name . '/' . $id . '.xml', 'GET');
+		return $res;
 	}
 
 	/**
@@ -164,7 +145,7 @@ class ActiveResource {
 		if (count ($options) > 0) {
 			$req .= '?' . http_build_query ($options);
 		}
-		return $this->_send_and_receive ($req, 'GET');
+		return self::_send_and_receive ($req, 'GET');
 	}
 
 	/**
@@ -178,7 +159,7 @@ class ActiveResource {
           $req .= '/' . $this->_data['id'];
         }
         $req .= '/' . $method . '.xml';
-		return $this->_send_and_receive ($req, 'POST', $options);
+		return self::_send_and_receive ($req, 'POST', $options);
 	}
 
 	/**
@@ -195,88 +176,125 @@ class ActiveResource {
 		if (count ($options) > 0) {
 			$req .= '?' . http_build_query ($options);
 		}
-		return $this->_send_and_receive ($req, 'PUT');
+		return self::_send_and_receive ($req, 'PUT');
 	}
 
 	/**
 	 * Build the request, call _fetch() and parse the results.
 	 */
-	function _send_and_receive ($url, $method, $data = array ()) {
+	static function _send_and_receive ($url, $method, $element_name = '', $data = array ()) {
 		$params = '';
-		$el = substr ($this->element_name, 0, -1);
+		$el = substr ($element_name, 0, -1);
 		foreach ($data as $k => $v) {
 			if ($k != 'id' && $k != 'created-at' && $k != 'updated-at') {
 				$params .= '&' . $el . '[' . str_replace ('-', '_', $k) . ']=' . rawurlencode ($v);
 			}
 		}
 		$params = substr ($params, 1);
-		$this->request_body = $params;
-		$this->request_uri = $url;
-		$this->request_method = $method;
 
-		$res = $this->_fetch ($url, $method, $params);
+		$res = self::_fetch ($url, $method, $params);
+    list ($headers, $res) = explode ("\r\n\r\n", $res, 2);
 
-		list ($headers, $res) = explode ("\r\n\r\n", $res, 2);
-		$this->response_headers = $headers;
-		$this->response_body = $res;
 		if (preg_match ('/HTTP\/[0-9]\.[0-9] ([0-9]+)/', $headers, $regs)) {
-			$this->response_code = $regs[1];
+			$response_code = $regs[1];
 		} else {
-			$this->response_code = false;
+			$response_code = false;
 		}
+		
+		switch ($response_code) {
+		  case 400:
+		    trigger_error('Bad Request', E_USER_ERROR);
+		    break;
+		  case 401:
+		    trigger_error('Unauthorized Access', E_USER_ERROR);
+		    break;
+  	  case 403:
+  	    trigger_error('Forbidden Access', E_USER_ERROR);
+  	    break;
+		  case 404:
+		    trigger_error('Resource Not Found', E_USER_ERROR);
+		    break;
+  	  case 405:
+  	    trigger_error('Method Not Allowed', E_USER_ERROR);
+  	    break;
+  	  case 409:
+  	    trigger_error('Resource Conflict', E_USER_ERROR);
+  	    break;
+  	  case 422:
+  	    trigger_error('Resource Invalid', E_USER_WARNING);
+  	    break;
+		  default:
+		    if(! $response_code){
+		      trigger_error('Invalid response code');
+		    } else if($response_code >= 401 and $response_code <= 500){
+		      trigger_error('Client Error', E_USER_ERROR);
+		    } else if($response_code >= 500 and $response_code <= 600){
+		      trigger_error('Server Error', E_USER_ERROR);
+	      } else if($response_code < 200 and $response_code > 399){
+	        trigger_error('Unknown response code: '.$response_code, E_USER_ERROR);
+    		}
+		}		
 
 		if (! $res) {
-			return $this;
+			return self;
 		} elseif ($res == ' ') {
-			$this->error = 'Empty reply';
-			return $this;
+			return self;
 		}
 
 		// parse XML response
 		$xml = new SimpleXMLElement ($res);
-
-		if ($xml->getName () == $this->element_name) {
+    
+		if ($xml->getName() == $element_name) {
 			// multiple
-			$res = array ();
-			$cls = get_class ($this);
-			foreach ($xml->children () as $child) {
-				$obj = new $cls;
+			$res = array();
+			$data = array();
+			foreach ($xml->children() as $child) {
 				foreach ((array) $child as $k => $v) {
-					$k = str_replace ('-', '_', $k);
-					if (isset ($v['nil']) && $v['nil'] == 'true') {
+					$k = str_replace('-', '_', $k);
+					if (isset($v['nil']) && $v['nil'] == 'true') {
 						continue;
 					} else {
-						$obj->_data[$k] = $v;
+						$data[$k] = $v;
 					}
 				}
-				$res[] = $obj;
+				$res[] = $data;
 			}
 			return $res;
-		} elseif ($xml->getName () == 'errors') {
-			// parse error message
-			$this->error = $xml->error;
-			$this->errno = $this->response_code;
-			return false;
 		}
-
+		
+	  if($xml->getName() == 'errors'){
+	    $res = array();
+	    $data = array();
+	    foreach ((array) $xml as $k => $v) {
+        $data[] = $v;
+      }
+	    $res['errors'] = $data;
+		  return $res;
+		}
+	
+	  $data = array();
+		
+		if($xml->getName() == 'nil-classes'){
+		  return $data;
+		}
+		
 		foreach ((array) $xml as $k => $v) {
-			$k = str_replace ('-', '_', $k);
-			if (isset ($v['nil']) && $v['nil'] == 'true') {
-				continue;
-			} else {
-				$this->_data[$k] = $v;
-			}
-		}
-		return $this;
+      $k = str_replace ('-', '_', $k);
+      if (isset ($v['nil']) && $v['nil'] == 'true') {
+        continue;
+      } else {
+        $data[$k] = $v;
+      }
+    }
+    return $data;
 	}
 
 	/**
 	 * Fetch the specified request via cURL.
 	 */
-	function _fetch ($url, $method, $params) {
+	static function _fetch ($url, $method, $params) {
 		if (! extension_loaded ('curl')) {
-			$this->error = 'cURL extension not loaded.';
-			return false;
+			trigger_error('cURL extension not loaded', E_USER_ERROR);
 		}
 		$ch = curl_init ();
 		curl_setopt ($ch, CURLOPT_URL, $url);
@@ -288,7 +306,7 @@ class ActiveResource {
 		curl_setopt ($ch, CURLOPT_CONNECTTIMEOUT, 10);
 		curl_setopt ($ch, CURLOPT_SSL_VERIFYPEER, 0);
 		curl_setopt ($ch, CURLOPT_SSL_VERIFYHOST, 0);
-		curl_setopt ($ch, CURLOPT_HTTPHEADER, $this->headers);
+		curl_setopt ($ch, CURLOPT_HTTPHEADER, self::$headers);
 		switch ($method) {
 			case 'POST':
 				curl_setopt ($ch, CURLOPT_POST, 1);
@@ -309,8 +327,7 @@ class ActiveResource {
 		}
 		$res = curl_exec ($ch);
 		if (! $res) {
-			$this->errno = curl_errno ($ch);
-			$this->error = curl_error ($ch);
+			trigger_error(curl_error($ch), E_USER_ERROR);
 			curl_close ($ch);
 			return false;
 		}
