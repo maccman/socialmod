@@ -1,0 +1,36 @@
+# Have a look at the API docs for
+# information on attributes.
+
+# *** Usage ***
+
+# Set API key
+SocialMod::Base.api_key = 'foo'
+
+# Schedule moderation
+v = SocialMod::Moderate::Video.new
+v.src = 'http://example.com/test.flv'
+v.custom_id = 3384
+v.save
+
+# Find moderated items
+task :moderate => [:environment] do 
+  SocialMod::Moderate.find_moderated.each do |mod|
+    vid = FooVideo.find_by_custom_id(mod.custom_id) rescue next
+    vid.passed_moderation = mod.passed?
+    vid.save(false)
+  end
+end
+
+# Flag moderate item
+item = SocialMod::Moderate.find_by_custom_id(mod.custom_id)
+item.flag!
+
+# Get stats for the last 30 days
+SocialMod::Dashboard.find() #=> #<SocialMod::Dashboard:0x2543e5c @attributes={"failed"=>0, "pending"=>137, "passed"=>14}>
+
+# Create users (email must be unique)
+u = SocialMod::User.new
+u.first_name  = 'Foo'
+u.last_name   = 'Bar'
+u.email       = 'foo@example.com'
+u.save

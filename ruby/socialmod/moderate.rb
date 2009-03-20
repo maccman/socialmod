@@ -5,28 +5,6 @@ module SocialMod
     cattr_accessor :element_name; @@element_name = 'item'
     cattr_accessor :collection_name; @@collection_name = 'items'
   
-    # Have a look at the API docs for
-    # information on attributes
-  
-    # # Schedule moderation
-    # v = Moderate::Video.new
-    # v.src = 'http://example.com/test.flv'
-    # v.custom_id = 3384
-    # v.save!
-    #
-    # # Find moderated items
-    # task :moderate => [:environment] do 
-    #   Moderate.find_moderated.each do |mod|
-    #     vid = FooVideo.find_by_custom_id(mod.custom_id) rescue next
-    #     vid.passed_moderation = mod.passed?
-    #     vid.save(false)
-    #   end
-    # end
-    # 
-    # # Flag moderate item
-    # item = Moderate.find_by_custom_id(mod.custom_id)
-    # item.flag!
-  
     class << self
       # Find all moderated since last sync
       def sync
