@@ -12,9 +12,17 @@ v.src = 'http://example.com/test.flv'
 v.custom_id = 3384
 v.save
 
+v2 = SocialMod::Item.new
+v2.src = 'http://example.com/test.jpg'
+v2.save
+
+v3 = SocialMod::Item::Text.new
+v3.data = "Foo bar"
+v3.save
+
 # Find moderated items
 task :moderate => [:environment] do 
-  SocialMod::Moderate.find_moderated.each do |mod|
+  SocialMod::Item.find_moderated.each do |mod|
     vid = FooVideo.find_by_custom_id(mod.custom_id) rescue next
     vid.passed_moderation = mod.passed?
     vid.save(false)
@@ -22,7 +30,7 @@ task :moderate => [:environment] do
 end
 
 # Flag moderate item
-item = SocialMod::Moderate.find_by_custom_id(mod.custom_id)
+item = SocialMod::Item.find_by_custom_id(mod.custom_id)
 item.flag!
 
 # Get stats for the last 30 days
