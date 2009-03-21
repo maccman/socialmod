@@ -22,16 +22,16 @@ module SocialMod
     end
   
     def passed?
-      verdict == 'passed'
+      state == 'passed'
     end
   
     def failed?
-      verdict == 'failed' ||
-        verdict == 'deferred'
+      state == 'failed' ||
+        state == 'deferred'
     end
   
     def pending?
-      verdict == 'pending'
+      state == 'pending'
     end
   
     def destroy
