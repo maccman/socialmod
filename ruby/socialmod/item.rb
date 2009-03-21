@@ -1,10 +1,10 @@
 module SocialMod
-  class Moderate < Base
-  
+  class Item < Base
+    
     # This is a hack to get inheritance working
     cattr_accessor :element_name; @@element_name = 'item'
     cattr_accessor :collection_name; @@collection_name = 'items'
-  
+    
     class << self
       # Find all moderated since last sync
       def sync
@@ -42,25 +42,25 @@ module SocialMod
       raise "You can't update an item"
     end
   
-    class Image < Moderate
+    class Image < Item
       def after_initialize
         self.mime = 'image/jpg'
       end
     end
   
-    class Video < Moderate
+    class Video < Item
       def after_initialize
         self.mime = 'video/x-flv'
       end
     end
   
-    class Audio < Moderate
+    class Audio < Item
       def after_initialize
         self.mime = 'audio/mp3'
       end
     end
   
-    class Text < Moderate
+    class Text < Item
       def src=(*a)
         raise "You can't set src for text moderation"
       end

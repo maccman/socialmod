@@ -7,7 +7,7 @@
 SocialMod::Base.api_key = 'foo'
 
 # Schedule moderation
-v = SocialMod::Moderate::Video.new
+v = SocialMod::Item::Video.new
 v.src = 'http://example.com/test.flv'
 v.custom_id = 3384
 v.save
@@ -34,3 +34,4 @@ u.first_name  = 'Foo'
 u.last_name   = 'Bar'
 u.email       = 'foo@example.com'
 u.save
+u.auth_key #=> 213ea1cda0fc274abf442faa1ebdb1324b64f0f6

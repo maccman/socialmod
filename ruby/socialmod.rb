@@ -26,4 +26,4 @@ end
 $: << File.dirname(__FILE__)
 require 'socialmod/dashboard'
 require 'socialmod/user'
-require 'socialmod/moderate'
+require 'socialmod/item'
