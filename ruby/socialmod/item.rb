@@ -26,8 +26,11 @@ module SocialMod
     end
   
     def failed?
-      state == 'failed' ||
-        state == 'deferred'
+      state == 'failed'
+    end
+    
+    def deferred?
+      state == 'deferred'
     end
   
     def pending?

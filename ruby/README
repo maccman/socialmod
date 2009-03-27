@@ -23,9 +23,8 @@ v3.save
 # Find moderated items
 task :moderate => [:environment] do 
   SocialMod::Item.find_moderated.each do |mod|
-    vid = FooVideo.find_by_custom_id(mod.custom_id) rescue next
-    vid.passed_moderation = mod.passed?
-    vid.save(false)
+    vid = FooItem.find_by_custom_id(mod.custom_id) rescue next
+    vid.update_attribute(:passed_moderation, mod.passed?)
   end
 end
 
@@ -34,7 +33,7 @@ item = SocialMod::Item.find_by_custom_id(mod.custom_id)
 item.flag!
 
 # Get stats for the last 30 days
-SocialMod::Dashboard.find() #=> #<SocialMod::Dashboard:0x2543e5c @attributes={"failed"=>0, "pending"=>137, "passed"=>14}>
+SocialMod::Dashboard.find #=> #<SocialMod::Dashboard:0x2543e5c @attributes={"failed"=>0, "pending"=>137, "passed"=>14}>
 
 # Create users (email must be unique)
 u = SocialMod::User.new
@@ -43,3 +42,21 @@ u.last_name   = 'Bar'
 u.email       = 'foo@example.com'
 u.save
 u.auth_key #=> 213ea1cda0fc274abf442faa1ebdb1324b64f0f6
+
+# Respond to callback
+class SocialModController < ApplicationController
+ def index
+  callback = SocialMod::Callback.new(params)
+  unless callback.valid?
+   return head(403)
+  end
+  if callback.passed?
+    # do stuff
+  elsif callback.deferred?
+    # do stuff
+  elsif callback.failed?
+    # do stuff
+  end
+  head 200
+ end
+end

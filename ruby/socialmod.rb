@@ -7,10 +7,12 @@ module SocialMod
     self.timeout = 5
     
     cattr_accessor :headers; @@headers = {}
+    cattr_accessor :api_key
   
     class << self
       def api_key=(key)
         self.headers['Authorization'] = key
+        @@api_key = key
       end
     end
   
@@ -27,3 +29,4 @@ $: << File.dirname(__FILE__)
 require 'socialmod/dashboard'
 require 'socialmod/user'
 require 'socialmod/item'
+require 'socialmod/callback'
