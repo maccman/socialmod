@@ -64,8 +64,22 @@ module SocialMod
     end
   
     class Text < Item
+      def after_initialize
+        self.mime = "text/plain"
+      end
+      
       def src=(*a)
         raise "You can't set src for text moderation"
+      end
+    end
+    
+    class HTML < Item
+      def after_initialize
+        self.mime = "text/html"
+      end
+      
+      def src=(*a)
+        raise "You can't set src for HTML moderation"
       end
     end
   end
