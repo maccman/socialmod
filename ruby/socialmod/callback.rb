@@ -34,6 +34,10 @@ module SocialMod
       state == 'deferred'
     end
     
+    def item
+      id && SocialMod::Item.find(id)
+    end
+    
     protected
       def api_key
         SocialMod::Base.api_key || raise('Must provide API key')
