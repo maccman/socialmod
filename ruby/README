@@ -45,6 +45,8 @@ u.auth_key #=> 213ea1cda0fc274abf442faa1ebdb1324b64f0f6
 
 # Respond to callback
 class SocialModController < ApplicationController
+ skip_before_filter :verify_authenticity_token, :only => :index
+  
  def index
   callback = SocialMod::Callback.new(params)
   unless callback.valid?
