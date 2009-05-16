@@ -4,39 +4,39 @@
 # *** Usage ***
 
 # Set API key
-SocialMod::Base.api_key = 'foo'
+Socialmod::Base.api_key = 'foo'
 
 # Schedule moderation
-v = SocialMod::Item::Video.new
+v = Socialmod::Item::Video.new
 v.src = 'http://example.com/test.flv'
 v.custom_id = 3384
 v.save
 
-v2 = SocialMod::Item.new
+v2 = Socialmod::Item.new
 v2.src = 'http://example.com/test.jpg'
 v2.save
 
-v3 = SocialMod::Item::Text.new
+v3 = Socialmod::Item::Text.new
 v3.data = "Foo bar"
 v3.save
 
 # Find moderated items
 task :moderate => [:environment] do 
-  SocialMod::Item.find_moderated.each do |mod|
+  Socialmod::Item.find_moderated.each do |mod|
     vid = FooItem.find_by_custom_id(mod.custom_id) rescue next
     vid.update_attribute(:passed_moderation, mod.passed?)
   end
 end
 
 # Flag moderate item
-item = SocialMod::Item.find_by_custom_id(mod.custom_id)
+item = Socialmod::Item.find_by_custom_id(mod.custom_id)
 item.flag!
 
 # Get stats for the last 30 days
-SocialMod::Dashboard.find #=> #<SocialMod::Dashboard:0x2543e5c @attributes={"failed"=>0, "pending"=>137, "passed"=>14}>
+Socialmod::Dashboard.find #=> #<Socialmod::Dashboard:0x2543e5c @attributes={"failed"=>0, "pending"=>137, "passed"=>14}>
 
 # Create users (email must be unique)
-u = SocialMod::User.new
+u = Socialmod::User.new
 u.first_name  = 'Foo'
 u.last_name   = 'Bar'
 u.email       = 'foo@example.com'
@@ -44,11 +44,11 @@ u.save
 u.auth_key #=> 213ea1cda0fc274abf442faa1ebdb1324b64f0f6
 
 # Respond to callback
-class SocialModController < ApplicationController
+class SocialmodController < ApplicationController
  skip_before_filter :verify_authenticity_token, :only => :index
   
  def index
-  callback = SocialMod::Callback.new(params)
+  callback = Socialmod::Callback.new(params)
   unless callback.valid?
    return head(403)
   end

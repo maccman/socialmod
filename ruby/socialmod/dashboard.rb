@@ -1,4 +1,4 @@
-module SocialMod
+module Socialmod
   class Dashboard < Base
     self.collection_name = 'dashboard'
     

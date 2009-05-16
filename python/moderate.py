@@ -1,6 +1,6 @@
 
 """
-Python client to SocialMod
+Python client to Socialmod
 For more information, please see the API:
 http://socialmod.com/api
 

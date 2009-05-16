@@ -1,4 +1,4 @@
-module SocialMod
+module Socialmod
   class Item < Base
     
     # This is a hack to get inheritance working

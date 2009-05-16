@@ -1,7 +1,7 @@
 require 'rubygems'
 require 'activeresource'
 
-module SocialMod
+module Socialmod
   class Base < ActiveResource::Base
     self.site = "http://api.socialmod.com"
     self.timeout = 5

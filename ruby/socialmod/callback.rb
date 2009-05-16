@@ -1,4 +1,4 @@
-module SocialMod
+module Socialmod
   class Callback
     attr_reader :params,
                 :id,
@@ -35,12 +35,12 @@ module SocialMod
     end
     
     def item
-      id && SocialMod::Item.find(id)
+      id && Socialmod::Item.find(id)
     end
     
     protected
       def api_key
-        SocialMod::Base.api_key || raise('Must provide API key')
+        Socialmod::Base.api_key || raise('Must provide API key')
       end
       
       def hmac

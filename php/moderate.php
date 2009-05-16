@@ -2,7 +2,7 @@
 
 /**
  *
- * PHP client to SocialMod
+ * PHP client to Socialmod
  * For more information, please see the API:
  * http://socialmod.com/api
  *
