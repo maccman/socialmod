@@ -16,6 +16,8 @@ module Socialmod
       @state     = params['state']
       @signature = params['signature']
       @time      = Time.at(@timestamp.to_i)
+      @data      = params['data']
+      @src       = params['src']
     end
     
     def valid?
@@ -44,7 +46,7 @@ module Socialmod
       end
       
       def hmac
-        str = [@timestamp, @id, @state].join('')
+        str = [@timestamp, @id, @state, @data, @src].join('')
         @hmac_digest ||= OpenSSL::Digest::Digest.new('SHA1')
         OpenSSL::HMAC.hexdigest(@hmac_digest, api_key, str)
       end
