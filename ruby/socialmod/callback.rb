@@ -6,7 +6,9 @@ module Socialmod
                 :custom_id,
                 :state,
                 :signature,
-                :time
+                :time,
+                :data,
+                :src
                 
     def initialize(params)
       @params    = params
