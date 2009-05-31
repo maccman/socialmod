@@ -1,0 +1,15 @@
+begin
+  require 'jeweler'
+  Jeweler::Tasks.new do |gemspec|
+    gemspec.name = "socialmod"
+    gemspec.summary = "Socialmod library"
+    gemspec.email = "alex@socialmod.com"
+    gemspec.homepage = "http://github.com/maccman/socialmod"
+    gemspec.description = "Ruby libraries for Socialmod moderation service"
+    gemspec.authors = ["Alex MacCaw"]
+    gemspec.files = FileList['lib/**/*.rb']
+    gemspec.add_dependency('activeresource', '>= 2.3.2')
+  end
+rescue LoadError
+  puts "Jeweler not available. Install it with: sudo gem install technicalpickles-jeweler -s http://gems.github.com"
+end
