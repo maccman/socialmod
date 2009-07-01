@@ -2,11 +2,11 @@
 
 Gem::Specification.new do |s|
   s.name = %q{socialmod}
-  s.version = "0.1.0"
+  s.version = "0.2.0"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Alex MacCaw"]
-  s.date = %q{2009-05-31}
+  s.date = %q{2009-07-01}
   s.description = %q{Ruby libraries for Socialmod moderation service}
   s.email = %q{alex@socialmod.com}
   s.extra_rdoc_files = [
@@ -22,7 +22,7 @@ Gem::Specification.new do |s|
   s.homepage = %q{http://github.com/maccman/socialmod}
   s.rdoc_options = ["--charset=UTF-8"]
   s.require_paths = ["lib"]
-  s.rubygems_version = %q{1.3.3}
+  s.rubygems_version = %q{1.3.4}
   s.summary = %q{Socialmod library}
 
   if s.respond_to? :specification_version then
