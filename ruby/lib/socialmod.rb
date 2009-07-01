@@ -14,10 +14,21 @@ module Socialmod
         self.headers['Authorization'] = key
         @@api_key = key
       end
+      
+      def callback_url=(url)
+        @@callback_url = url
+      end
+      
+      def callback_url
+        @@callback_url ||= nil
+      end
     end
   
     def initialize(*args)
       super(*args)
+      if Base.callback_url
+        attributes["callback_url"] ||= Base.callback_url
+      end
       if respond_to?(:after_initialize)
         send(:after_initialize)
       end
